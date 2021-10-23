@@ -1,0 +1,41 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: nginx.mamachanko.com.0.0.1
+spec:
+  refName: nginx.mamachanko.com
+  version: 0.0.1
+  valuesSchema:
+    openAPIv3:
+      title: nginx.mamachanko.com.0.0.1 values schema
+      examples:
+        - replicas: 3
+          delay: 4
+      properties:
+        replicas:
+          type: int
+          description: The number of Nginx replicas to spin up.
+          default: 2
+          examples:
+            - 2
+        delay:
+          type: int
+          description: The number of seconds to delay startup by.
+          default: 3
+          examples:
+            - 3
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: mamachanko/tanzu-nginx
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}

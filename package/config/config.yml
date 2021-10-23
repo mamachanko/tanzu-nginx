@@ -1,0 +1,42 @@
+#@ load("@ytt:data", "data")
+
+#@ def startup():
+#@   return """
+#@   set -euo pipefail
+#@   echo "Delaying startup by {delay}s..."
+#@   sleep {delay}
+#@   echo "Let's go!"
+#@   """.strip().format(delay=data.values.delay)
+#@ end
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  replicas: #@ data.values.replicas
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      initContainers:
+      - image: alpine:3.14.2
+        name: delay
+        command:
+          - /bin/sh
+          - -c
+          - #@ startup()
+      containers:
+      - image: nginx:1.20.1-alpine
+        name: nginx
