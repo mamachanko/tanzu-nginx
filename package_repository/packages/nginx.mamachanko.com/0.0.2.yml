@@ -24,6 +24,10 @@ spec:
           default: 3
           examples:
             - 3
+        html:
+          type: string
+          description: The HTML content that will be returned at "/".
+          default: Hello, there!
   template:
     spec:
       fetch:
