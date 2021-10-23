@@ -1,0 +1,26 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: #@ "nginx.mamachanko.com." + data.values.version
+spec:
+  refName: nginx.mamachanko.com
+  version: #@ data.values.version
+  licenses:
+    - Apache License Version 2.0
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: #@ "mamachanko/tanzu-nginx:" + data.values.version
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}

@@ -1,0 +1,12 @@
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: nginx.mamachanko.com
+spec:
+  displayName: "Nginx"
+  shortDescription: "Nginx Demo for Tanzu"
+  categories:
+    - demo
+  providerName: "github.com/mamachanko"
+  supportDescription: "https://github.com/mamachanko/tanzu-nginx"
