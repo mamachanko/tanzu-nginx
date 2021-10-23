@@ -28,7 +28,7 @@ spec:
     spec:
       fetch:
         - imgpkgBundle:
-            image: mamachanko/tanzu-nginx
+            image: mamachanko/tanzu-nginx:0.0.2
       template:
         - ytt:
             paths:
