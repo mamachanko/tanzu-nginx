@@ -1,4 +1,4 @@
-[![Build & push](https://github.com/mamachanko/tanzu-nginx/actions/workflows/makefile.yml/badge.svg)](https://github.com/mamachanko/tanzu-nginx/actions/workflows/makefile.yml)
+[![Build & push](https://github.com/mamachanko/tanzu-nginx/actions/workflows/build.yml/badge.svg)](https://github.com/mamachanko/tanzu-nginx/actions/workflows/build.yml)
 
 # tanzu-nginx
 

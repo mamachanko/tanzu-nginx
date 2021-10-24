@@ -1,20 +1,26 @@
-all: package package_repository
+VERSION=0.0.1
+IMAGE_REPOSITORY=mamachanko
 
-.PHONY: package
-package:
-	ytt -f 0.0.1/config/ | kbld -f- --imgpkg-lock-output 0.0.1/.imgpkg/images.yml
-	imgpkg push --bundle mamachanko/tanzu-nginx:0.0.1 --file 0.0.1
-	ytt -f 0.0.2/config/ | kbld -f- --imgpkg-lock-output 0.0.2/.imgpkg/images.yml
-	imgpkg push --bundle mamachanko/tanzu-nginx:0.0.2 --file 0.0.2
+all: 0.0.1 0.0.2 package_repository
+
+.PHONY: 0.0.1 0.0.2
+0.0.1 0.0.2:
+	ytt -f $@/config/ | kbld -f- --imgpkg-lock-output $@/.imgpkg/images.yml
+	imgpkg push \
+	  --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$@ \
+	  --file $@
 
 .PHONY: package_repository
 package_repository:
 	kbld -f package_repository/packages --imgpkg-lock-output package_repository/.imgpkg/images.yml
-	imgpkg push --bundle mamachanko/tanzu-nginx-repo:0.0.0 --file package_repository
+	imgpkg push \
+	  --bundle ${IMAGE_REPOSITORY}/tanzu-nginx-repo:0.0.0 \
+	  --file package_repository
 
 .PHONY: repo-install
 repo-install:
-	tanzu package repository add nginx-repo --url mamachanko/tanzu-nginx-repo:0.0.0
+	tanzu package repository add nginx-repo \
+	  --url ${IMAGE_REPOSITORY}/tanzu-nginx-repo:0.0.0
 
 .PHONY: repo-uninstall
 repo-uninstall:
@@ -22,7 +28,10 @@ repo-uninstall:
 
 .PHONY: package-install
 package-install:
-	tanzu package install nginx --package-name nginx.mamachanko.com --version 0.0.1 --values-file 0.0.1-values.yml
+	tanzu package install nginx \
+	  --package-name nginx.mamachanko.com \
+	  --version ${VERSION} \
+	  --values-file ${VERSION}-values.yml
 
 .PHONY: package-uninstall
 package-uninstall:
