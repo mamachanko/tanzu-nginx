@@ -22,7 +22,7 @@ repo-uninstall:
 
 .PHONY: package-install
 package-install:
-	tanzu package install nginx --package-name nginx.mamachanko.com --version 0.0.1 --values-file values.yml
+	tanzu package install nginx --package-name nginx.mamachanko.com --version 0.0.1 --values-file 0.0.1-values.yml
 
 .PHONY: package-uninstall
 package-uninstall:

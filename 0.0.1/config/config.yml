@@ -35,6 +35,8 @@ spec:
     metadata:
       labels: #@ labels()
     spec:
+      imagePullSecrets:
+        - name: dockerhub-credentials
       initContainers:
         - image: alpine:3.14.2
           name: delay
@@ -58,3 +60,14 @@ spec:
       port: 80
       targetPort: 80
   selector: #@ labels()
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dockerhub-credentials
+  namespace: nginx
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K

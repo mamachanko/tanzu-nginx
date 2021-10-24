@@ -5,6 +5,10 @@ metadata:
 spec:
   refName: nginx.mamachanko.com
   version: 0.0.2
+  licenses:
+    - Apache License Version 2.0
+  releaseNotes: |
+    * Configurable HTML content.
   valuesSchema:
     openAPIv3:
       title: nginx.mamachanko.com.0.0.2 values schema
