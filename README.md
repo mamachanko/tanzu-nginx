@@ -29,6 +29,7 @@ In order to avoid index.docker.io's rate-limiting, we need to provide credential
 
 ```shell
 tanzu imagepullsecret add dockerhub \
+  --registry index.docker.io \
   --username <YOUR-DOCKER-HUB-USERNAME> \
   --password <YOUR-DOCKER-HUB-PASSWORD> \
   --export-to-all-namespaces
