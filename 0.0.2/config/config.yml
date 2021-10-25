@@ -53,7 +53,7 @@ spec:
             - -c
             - #@ initDelay()
       containers:
-        - image: nginx:1.20.1-alpine
+        - image: nginx:1.21.3-alpine
           name: nginx
           volumeMounts:
             - name: html
