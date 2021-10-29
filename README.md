@@ -9,7 +9,7 @@
 Make sure you have the following available:
 
 * [ ] [kapp](https://carvel.dev/kapp/) (alternatively `kubectl`)
-* [ ] [tanzu CLI](https://github.com/vmware-tanzu/tanzu-framework) will all core plugins installed
+* [ ] [tanzu CLI](https://github.com/vmware-tanzu/tanzu-framework) (`>=0.8.0`) will all core plugins installed
 * [ ] credentials for index.docker.io
 
 ## Prepare your cluster
@@ -28,8 +28,8 @@ kapp deploy \
 In order to avoid index.docker.io's rate-limiting, we need to provide credentials:
 
 ```shell
-tanzu imagepullsecret add dockerhub \
-  --registry index.docker.io \
+tanzu secret registry add dockerhub \
+  --server index.docker.io \
   --username <YOUR-DOCKER-HUB-USERNAME> \
   --password <YOUR-DOCKER-HUB-PASSWORD> \
   --export-to-all-namespaces
