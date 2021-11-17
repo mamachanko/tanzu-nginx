@@ -4,15 +4,6 @@
 app: nginx
 #@ end
 
-#@ def initDelay():
-#@   return """
-#@   set -euo pipefail
-#@   echo "Delaying startup by {delay}s..."
-#@   sleep {delay}
-#@   echo "Let's go!"
-#@   """.strip().format(delay=data.values.delay)
-#@ end
-
 ---
 apiVersion: v1
 kind: Namespace
@@ -37,13 +28,6 @@ spec:
     spec:
       imagePullSecrets:
         - name: dockerhub-credentials
-      initContainers:
-        - image: alpine:3.14.2
-          name: delay
-          command:
-            - /bin/sh
-            - -c
-            - #@ initDelay()
       containers:
         - image: nginx:1.20.1-alpine
           name: nginx
