@@ -7,6 +7,10 @@ MAKEFLAGS += --no-builtin-rules
 VERSION=0.0.1
 IMAGE_REPOSITORY=mamachanko
 
+##
+##@ Building
+##
+
 build: package-build repo-build
 
 .PHONY: package-build
@@ -38,6 +42,10 @@ repo-build:
 	  --bundle ${IMAGE_REPOSITORY}/tanzu-nginx-repo:${VERSION} \
 	  --file $$scratch
 	echo "Pushed $$scratch."
+
+##
+##@ Installation
+##
 
 .PHONY: install
 install: repo-install package-install
@@ -75,3 +83,27 @@ secret-install:
 	  --password $$DOCKERHUB_PASSWORD \
 	  --export-to-all-namespaces \
 	  --yes
+
+##
+##@ Release engineering
+##
+
+# TODO .PHONY: release
+release:
+	@tag="v$$(gitversion | jq -r '.MajorMinorPatch')"
+	@echo "Tagging with $$tag"
+	git tag $$tag
+
+bump-patch:
+	echo bumping patch to
+
+bump-minor:
+	echo create next branch
+	echo push next branch
+
+bump-major:
+
+some-change:
+	echo $$RANDOM > afile
+	git add afile
+	git commit --message 'Changed a file'

@@ -1,0 +1,13 @@
+mode: ContinuousDelivery
+branches:
+  release: {}
+ignore:
+  sha: []
+merge-message-formats: {}
+commit-message-incrementing: Disabled
+branches:
+  release:
+    tag: rc
+  hotfix:
+    tag: rc
+increment: Patch
