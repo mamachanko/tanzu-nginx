@@ -4,48 +4,57 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-VERSION=$(shell git describe --tags | sed 's/^v//')-$(USER)
+VERSION=$(shell git describe --tags | sed 's/^v//')
+GIT_SHA=$(shell git rev-parse --short @)
+
 IMAGE_REPOSITORY := mamachanko
 IMAGE_PACKAGE_NAME := tanzu-nginx
 IMAGE_REPOSITORY_NAME := tanzu-nginx-repo
 
+.PHONY: build
 build: package-build repo-build
 
 .PHONY: package-build
 package-build:
-	ytt --file package/ | kbld --file - --imgpkg-lock-output package/.imgpkg/images.yml
+	rm -rf build
+	mkdir -p build
+	cp -R package build/
+	ytt --file package/ | kbld --file - --imgpkg-lock-output build/package/.imgpkg/images.yml
+	imgpkg push \
+	  --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:${GIT_SHA} \
+	  --file build/package
 	imgpkg push \
 	  --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:${VERSION} \
-	  --file package
-
-.PHONY: package-publish
-package-publish:
-	imgpkg pull --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(FROM) --output publish
-	imgpkg push --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(TO) --file publish
-	rm -rf publish
+	  --file build/package
 
 .PHONY: repo-build
 repo-build:
-	scratch="$$(mktemp -d /tmp/tanzu-nginx.package_repository.${VERSION}.XXXXXX)"
+	rm -rf build/package_repository
 	mkdir -p \
-	  $${scratch}/.imgpkg \
-	  $${scratch}/packages/nginx.mamachanko.com
+	  build/package_repository/.imgpkg \
+	  build/package_repository/packages/nginx.mamachanko.com
+	
 	now_utc_iso8601="$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")"
 	ytt \
 	  --file package_repository/packages/nginx.mamachanko.com/version.yml \
 	  --data-value version="${VERSION}" \
 	  --data-value released_at=$$now_utc_iso8601 \
-	  >"$$scratch/packages/nginx.mamachanko.com/${VERSION}.yml"
+	  >"build/package_repository/packages/nginx.mamachanko.com/${VERSION}.yml"
 	cp \
 	  package_repository/packages/nginx.mamachanko.com/metadata.yml \
-	  $${scratch}/packages/nginx.mamachanko.com/
+	  build/package_repository/packages/nginx.mamachanko.com/
 	kbld \
-	  --file $${scratch}/packages \
-	  --imgpkg-lock-output $${scratch}/.imgpkg/images.yml
+	  --file build/package_repository/packages \
+	  --imgpkg-lock-output build/package_repository/.imgpkg/images.yml
+	echo "Built package_repository"
+	
+	imgpkg push \
+	  --bundle ${IMAGE_REPOSITORY}/tanzu-nginx-repo:${GIT_SHA} \
+	  --file build/package_repository
 	imgpkg push \
 	  --bundle ${IMAGE_REPOSITORY}/tanzu-nginx-repo:${VERSION} \
-	  --file $$scratch
-	echo "Pushed $$scratch."
+	  --file build/package_repository
+	echo "Pushed build/package_repository"
 
 .PHONY: release
 release:
@@ -55,6 +64,21 @@ release:
 	  --package semantic-release@18.0.0 \
 	  -- \
 	  semantic-release --no-ci $(SEMANTIC_RELEASE_EXTRA_FLAGS)
+
+.PHONY: publish
+publish: package-publish
+
+.PHONY: package-publish
+package-publish:
+	imgpkg pull --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(GIT_SHA) --output publish
+	imgpkg push --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(TO) --file publish
+	rm -rf publish
+
+.PHONY: repo-publish
+repo-publish:
+	imgpkg pull --bundle ${IMAGE_REPOSITORY}/tanzu-nginx-repo:$(GIT_SHA) --output publish
+	imgpkg push --bundle ${IMAGE_REPOSITORY}/tanzu-nginx-repo:$(TO) --file publish
+	rm -rf publish
 
 .PHONY: reset
 reset:
@@ -70,7 +94,7 @@ install: repo-install package-install
 uninstall: repo-uninstall package-uninstall
 
 .PHONY: repo-install
-repo-install:
+repo-install: repo-build
 	tanzu package repository add nginx-repo \
 	  --url ${IMAGE_REPOSITORY}/tanzu-nginx-repo:${VERSION}
 
