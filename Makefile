@@ -57,8 +57,8 @@ repo-build:
 release:
 	npx \
 	  --yes \
-	  --package @semantic-release/exec \
 	  --package semantic-release@18.0.0 \
+	  --package @semantic-release/exec@6.0.2 \
 	  -- \
 	  semantic-release --no-ci $(SEMANTIC_RELEASE_EXTRA_FLAGS)
 
