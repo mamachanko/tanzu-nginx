@@ -71,7 +71,7 @@ package-publish:
 	mkdir -p build/publish/package
 	imgpkg pull --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(GIT_SHA) --output build/publish/package
 	imgpkg push --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(TO) --file build/publish/package
-	rm -rf build/publish/package
+	imgpkg copy --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(TO) --to-tar build/publish/package.tar
 
 .PHONY: repo-publish
 repo-publish:
