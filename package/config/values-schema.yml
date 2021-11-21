@@ -1,3 +1,4 @@
 #@data/values-schema
 ---
 replicas: 2
+delay: 3
