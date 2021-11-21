@@ -23,9 +23,6 @@ package-build:
 	imgpkg push \
 	  --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:${GIT_SHA} \
 	  --file build/package
-	imgpkg push \
-	  --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:${VERSION} \
-	  --file build/package
 
 .PHONY: repo-build
 repo-build:
@@ -34,11 +31,11 @@ repo-build:
 	  build/package_repository/.imgpkg \
 	  build/package_repository/packages/nginx.mamachanko.com
 	
-	now_utc_iso8601="$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")"
 	ytt \
 	  --file package_repository/packages/nginx.mamachanko.com/version.yml \
 	  --data-value version="${VERSION}" \
-	  --data-value released_at=$$now_utc_iso8601 \
+	  --data-value package_tag="${GIT_SHA}" \
+	  --data-value released_at="$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")" \
 	  >"build/package_repository/packages/nginx.mamachanko.com/${VERSION}.yml"
 	cp \
 	  package_repository/packages/nginx.mamachanko.com/metadata.yml \
@@ -66,22 +63,22 @@ release:
 	  semantic-release --no-ci $(SEMANTIC_RELEASE_EXTRA_FLAGS)
 
 .PHONY: publish
-publish: package-publish
+publish: package-publish repo-publish
 
 .PHONY: package-publish
 package-publish:
-	imgpkg pull --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(GIT_SHA) --output publish
-	imgpkg push --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(TO) --file publish
-	rm -rf publish
+	rm -rf build/publish/package
+	mkdir -p build/publish/package
+	imgpkg pull --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(GIT_SHA) --output build/publish/package
+	imgpkg push --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(TO) --file build/publish/package
+	rm -rf build/publish/package
 
 .PHONY: repo-publish
 repo-publish:
-	imgpkg pull --bundle ${IMAGE_REPOSITORY}/tanzu-nginx-repo:$(GIT_SHA) --output publish
-	imgpkg push --bundle ${IMAGE_REPOSITORY}/tanzu-nginx-repo:$(TO) --file publish
-	rm -rf publish
+	VERSION=$(TO) $(MAKE) -e repo-build
 
 .PHONY: reset
-reset:
+reset: ## (Danger zone) Delete all releases and tags
 	git fetch
 	gh release list | awk '{print $$1}' | xargs -n1 gh release delete --yes
 	git tag -l | xargs -n 1 git push --delete origin
@@ -94,7 +91,7 @@ install: repo-install package-install
 uninstall: repo-uninstall package-uninstall
 
 .PHONY: repo-install
-repo-install: repo-build
+repo-install:
 	tanzu package repository add nginx-repo \
 	  --url ${IMAGE_REPOSITORY}/tanzu-nginx-repo:${VERSION}
 

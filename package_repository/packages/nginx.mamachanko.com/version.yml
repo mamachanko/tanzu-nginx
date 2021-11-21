@@ -13,7 +13,7 @@ spec:
     spec:
       fetch:
         - imgpkgBundle:
-            image: #@ "mamachanko/tanzu-nginx:" + data.values.version
+            image: #@ "mamachanko/tanzu-nginx:" + data.values.package_tag
       template:
         - ytt:
             paths:
