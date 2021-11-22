@@ -2,17 +2,21 @@ plugins:
   - "@semantic-release/commit-analyzer"
   - "@semantic-release/release-notes-generator"
   - - "@semantic-release/exec"
-    - publishCmd: "make publish TO=${nextRelease.version}"
+    - verifyReleaseCmd: "make release-verify"
+      prepareCmd: "make release-prepare NEXT_VERSION=${nextRelease.version}"
+      publishCmd: "make release-publish NEXT_VERSION=${nextRelease.version}"
   - - "@semantic-release/github"
     - assets:
-      - path: "build/publish/package.tar"
-        label: "Package"
+        - path: "build/package.zip"
+          label: "Package"
+        - path: "build/package_repository.zip"
+          label: "Package Repository"
 
 branches:
- - '+([0-9])?(.{+([0-9]),x}).x'
- - 'main'
- - 'next'
- - 'next-major'
- - { name: 'beta', prerelease: true }
- - { name: 'alpha', prerelease: true }
-
+  - '+([0-9])?(.{+([0-9]),x}).x'
+  - 'main'
+  # TODO: REMOVE ⬇️
+  - 'next'
+  - 'next-major'
+  - { name: 'beta', prerelease: true }
+  - { name: 'alpha', prerelease: true }
