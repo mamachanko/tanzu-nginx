@@ -120,6 +120,8 @@ release-list: ## List all releases
 	git tag --list | cat
 	@echo List all releases on GitHub
 	gh release list
+	@echo View the latest release on GitHub
+	gh release view
 
 .PHONY: release-reset
 release-reset: ## (Danger zone) Delete all releases and tags
