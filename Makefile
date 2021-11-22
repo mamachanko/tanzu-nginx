@@ -4,10 +4,13 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-VERSION := $(shell git describe --tags | sed 's/^v//')
+VERSION := $(shell git describe --tags --dirty | sed 's/^v//')
 GIT_SHA := $(shell git rev-parse --short @)
 
 NEXT_VERSION ?= $(VERSION)
+
+RELEASE_NOTES ?= No release notes
+export RELEASE_NOTES
 
 IMAGE_REPOSITORY := mamachanko
 IMAGE_PACKAGE_NAME := tanzu-nginx
@@ -54,6 +57,7 @@ repo-build:
 	  --data-value version="$(VERSION)" \
 	  --data-value package_tag="$(GIT_SHA)" \
 	  --data-value released_at="$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+	  --data-value release_notes="$$RELEASE_NOTES" \
 	  >"build/package_repository/packages/nginx.mamachanko.com/$(VERSION).yml"
 	cp \
 	  package_repository/packages/nginx.mamachanko.com/metadata.yml \
@@ -99,7 +103,7 @@ release:
 	$(MAKE) release-list
 
 .PHONY: release-publish
-release-publish: package-publish repo-publish
+release-publish: package-publish repo-push
 
 .PHONY: package-publish
 package-publish:
@@ -107,10 +111,6 @@ package-publish:
 	mkdir -p build/publish/package
 	imgpkg pull --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(GIT_SHA) --output build/publish/package
 	imgpkg push --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(NEXT_VERSION) --file build/publish/package
-
-.PHONY: repo-publish
-repo-publish:
-	VERSION=$(NEXT_VERSION) $(MAKE) -e repo-build
 
 .PHONY: release-list
 release-list: ## List all releases

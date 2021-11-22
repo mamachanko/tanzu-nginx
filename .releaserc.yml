@@ -3,7 +3,7 @@ plugins:
   - "@semantic-release/release-notes-generator"
   - - "@semantic-release/exec"
     - verifyReleaseCmd: "make release-verify"
-      prepareCmd: "make release-prepare NEXT_VERSION=${nextRelease.version}"
+      prepareCmd: "make release-prepare NEXT_VERSION=${nextRelease.version} RELEASE_NOTES='${nextRelease.notes}'"
       publishCmd: "make release-publish NEXT_VERSION=${nextRelease.version}"
   - - "@semantic-release/github"
     - assets:
