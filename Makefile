@@ -96,6 +96,7 @@ release:
 	  --package @semantic-release/exec@6.0.2 \
 	  -- \
 	  semantic-release --no-ci $(SEMANTIC_RELEASE_EXTRA_FLAGS)
+	$(MAKE) release-list
 
 .PHONY: release-publish
 release-publish: package-publish repo-publish
@@ -106,7 +107,6 @@ package-publish:
 	mkdir -p build/publish/package
 	imgpkg pull --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(GIT_SHA) --output build/publish/package
 	imgpkg push --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(NEXT_VERSION) --file build/publish/package
-	imgpkg copy --bundle ${IMAGE_REPOSITORY}/tanzu-nginx:$(NEXT_VERSION) --to-tar build/publish/package.tar
 
 .PHONY: repo-publish
 repo-publish:
