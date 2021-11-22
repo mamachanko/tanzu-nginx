@@ -100,7 +100,6 @@ release:
 	  --package @semantic-release/exec@6.0.2 \
 	  -- \
 	  semantic-release --no-ci $(SEMANTIC_RELEASE_EXTRA_FLAGS)
-	$(MAKE) release-list
 
 .PHONY: release-publish
 release-publish: package-publish repo-push

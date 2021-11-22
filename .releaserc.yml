@@ -5,6 +5,7 @@ plugins:
     - verifyReleaseCmd: "make release-verify"
       prepareCmd: "make release-prepare NEXT_VERSION=${nextRelease.version} RELEASE_NOTES='${nextRelease.notes}'"
       publishCmd: "make release-publish NEXT_VERSION=${nextRelease.version}"
+      successCmd: "make release-list"
   - - "@semantic-release/github"
     - assets:
         - path: "build/package.zip"
